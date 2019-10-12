@@ -3,12 +3,12 @@ const router = new express.Router();
 const User = require('../db/models/user');
 
 router.post('/users', (req, res) => {
-    console.log(req.body);
     const user = new User(req.body);
     user.save().then(() => {
-        res.status(201).send(user);
+       return res.status(201).send(user);
     }).catch(err => {
-        res.status(400).send(err);
+        console.log({err});
+        return res.status(400).send(err);
     });
 });
 
@@ -42,8 +42,11 @@ router.patch('/users/:id', async (req, res) => {
         return res.status(400).send({error: 'Invalid updates!'});
     }
     try{
-        const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-        new: true, runValidators: true});
+        //const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+        //new: true, runValidators: true});
+        const user = await User.findById(req.body.id);
+        updates.forEach((update)=>user[update] = req.body[update]);
+        await user.save();
         if(!user){
             return res.status(404).send();
         }
