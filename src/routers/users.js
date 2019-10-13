@@ -2,20 +2,22 @@ const express = require('express');
 const router = new express.Router();
 const User = require('../db/models/user');
 
-router.post('/users', (req, res) => {
+router.post('/users',async (req, res) => {
     const user = new User(req.body);
-    user.save().then(() => {
-       return res.status(201).send(user);
-    }).catch(err => {
-        console.log({err});
-        return res.status(400).send(err);
-    });
+    try{
+        await user.save();
+        const token = await user.generateAuthToken();
+        return res.status(201).send({user, token});
+    }catch(e){ 
+        return res.status(400).send(e);
+    }
 });
 
 router.post('/users/login',async (req,res) => {
     try{
         const user = await User.findByCredentials(req.body.email, req.body.password);
-        return res.send(user);
+        const token = await user.generateAuthToken();
+        return res.send({user, token});
     }catch(e){
         return res.status(400).send();
     }
