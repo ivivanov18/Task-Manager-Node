@@ -1,6 +1,8 @@
 const express = require('express');
-const router = new express.Router();
 const User = require('../db/models/user');
+const auth = require('../middleware/auth');
+
+const router = new express.Router();
 
 router.post('/users',async (req, res) => {
     const user = new User(req.body);
@@ -23,15 +25,11 @@ router.post('/users/login',async (req,res) => {
     }
 });
 
-router.get("/users", (req,res) => {
-    User.find({}).then(users => {
-        res.send(users);
-    }).catch(err => {
-        res.status(500).send();
-    });
+router.get("/users/me", auth, (req,res) => {
+    return res.send(req.user);
 });
 
-router.get('/users/:id', (req,res) => {
+router.get('/users/:id', auth, (req,res) => {
     const _id = req.params.id;
     User.findById(_id).then(user => {
         if(!user){
@@ -44,7 +42,7 @@ router.get('/users/:id', (req,res) => {
 
 });
 
-router.patch('/users/:id', async (req, res) => {
+router.patch('/users/:id', auth, async (req, res) => {
     const updates = Object.keys(req.body);
     const allowedUpdates = ['name', 'email', 'password'];
     const isValidOperation = updates.every(update =>  allowedUpdates.includes(update));
@@ -67,7 +65,7 @@ router.patch('/users/:id', async (req, res) => {
     }
 });
 
-router.delete('/users/:id', async (req,res) => {
+router.delete('/users/:id', auth, async (req,res) => {
     try{
         const user = User.findByIdAndDelete(req.params.id);
         if(!user){
