@@ -90,7 +90,7 @@ router.delete('/users/me', auth, async (req,res) => {
             return res.status(404).send();
         }*/
         await req.user.remove();
-        return res.send(user);
+        return res.send();
     }catch(e){
        return res.status(500).send();
     }
