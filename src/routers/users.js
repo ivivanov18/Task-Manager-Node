@@ -110,7 +110,10 @@ const upload = multer({
     }
 });
 
-router.post('/users/me/upload', upload.single('avatar'), async (req, res) => {
+router.post('/users/me/upload', upload.single('avatar'),(req, res) => {
     res.send();    
+}, (error, req, res, next) => {
+    return res.status(400).send({error: error.message});
 });
+
 module.exports = router;
