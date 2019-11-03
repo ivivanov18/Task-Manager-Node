@@ -17,11 +17,24 @@ router.post('/tasks', auth, async (req,res) => {
     }
 });
 
+// GET /tasks?completed=true
 router.get("/tasks",auth, async (req,res) => {
+    const completed = req.query.completed 
+                        ? req.query === 'true'
+                        : undefined 
+    
+    const filters = {
+        owner: req.user._id,
+    };
+    
+    if(completed){
+        filters.completed = completed;
+    }
+
     try{
         // Code qui marche aussi
         // await req.user.populate('userTasks').execPopulate();
-        const tasks = await Task.find({owner: req.user._id});
+        const tasks = await Task.find({...filters});
         if(tasks.length === 0){
             return res.status(404).send();
         }
