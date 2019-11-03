@@ -39,10 +39,16 @@ router.get("/tasks",auth, async (req,res) => {
                     ? parseInt(req.query.skip)
                     : null
 
+    const sort = {};
+    if(req.query.sortBy){
+        const parts = req.query.sortBy.split(':');
+        sort[parts[0]] = parts[1] === 'desc' ? -1 : 1
+    }
+
     try{
         // Code qui marche aussi
         // await req.user.populate('userTasks').execPopulate();
-        const tasks = await Task.find({...filters}, null, {limit, skip});
+        const tasks = await Task.find({...filters}, null, {limit, skip, sort});
         if(tasks.length === 0){
             return res.status(404).send();
         }
