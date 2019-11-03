@@ -22,7 +22,7 @@ router.get("/tasks",auth, async (req,res) => {
     const completed = req.query.completed 
                         ? req.query === 'true'
                         : undefined 
-    
+
     const filters = {
         owner: req.user._id,
     };
@@ -31,10 +31,18 @@ router.get("/tasks",auth, async (req,res) => {
         filters.completed = completed;
     }
 
+    const limit = req.query.limit
+                    ? parseInt(req.query.limit)
+                    : null
+
+    const skip = req.query.skip
+                    ? parseInt(req.query.skip)
+                    : null
+
     try{
         // Code qui marche aussi
         // await req.user.populate('userTasks').execPopulate();
-        const tasks = await Task.find({...filters});
+        const tasks = await Task.find({...filters}, null, {limit, skip});
         if(tasks.length === 0){
             return res.status(404).send();
         }
